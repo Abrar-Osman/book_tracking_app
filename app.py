@@ -133,20 +133,19 @@ def search_page():
         book_list =[]
         for book in books:
             book_info = book.get('volumeInfo', {})
-        
-        book_title = book_info.get('title', 'No Title')
-        authors = ', '.join(book_info.get('authors', ['Unknown Author']))  
-        genre = ', '.join(book_info.get('categories', ['Unknown Genre']))  
-        page_count = book_info.get('pageCount', 'N/A')
+            book_title = book_info.get('title', 'No Title')
+            authors = ', '.join(book_info.get('authors', ['Unknown Author']))  
+            genre = ', '.join(book_info.get('categories', ['Unknown Genre']))  
+            page_count = book_info.get('pageCount', 'N/A')
 
-            # Add the extracted data to the list
-        book_list.append({
-                'id': book['id'],
-                'title': book_title,
-                'authors': authors,
-                'genre': genre,
-                'page_count': page_count
-            })
+                # Add the extracted data to the list
+            book_list.append({
+                    'id': book['id'],
+                    'title': book_title,
+                    'authors': authors,
+                    'genre': genre,
+                    'page_count': page_count
+                })
         #return render_template('results.html', books=book_list, query=search_query)
     
     else:
