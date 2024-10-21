@@ -39,10 +39,10 @@
 
         <!-- Modal Header -->
         <div class="modal-header">
-          <form >
+          <form action="/search" method="GET">
             <div class="row">
               <div class="col-sm-10">
-          <input class="form-control " type="text" placeholder="Search">
+          <input class="form-control " type="text" placeholder="Search" name="q">
               </div>
               <div class="col-sm-2">
                 <button class="btn btn-outline-warning " type="submit">Search</button>
@@ -53,7 +53,7 @@
         </div>
 
         <!-- Modal body -->
-        <div class="modal-body">
+        <div class="modal-body" id="result">
           
         </div>
 

@@ -65,6 +65,66 @@ with app.app_context():
 #         return func(current_user, *args, **kwargs)
 #     return decorated
 
+def fetch_data(book_name):
+    API_KEY = 'AIzaSyAKunAimLH4KP7tBRBulOfZSYDTlPgI6rI'
+    api_url = f"https://www.googleapis.com/books/v1/volumes?q={book_name}:keyes&key={API_KEY}"
+    response = requests.get(api_url)
+    
+    if response.status_code == 200:
+        return  response.json() 
+    else:
+        raise Exception(f"Error fetching data: {response.status_code}")
+
+def extract_book_data(book_data):
+    books_list = []
+    for book in book_data.get('items', []):
+        volume_info = book.get('volumeInfo', {})
+        
+        title = volume_info.get('title', 'No Title')
+        authors = ', '.join(volume_info.get('authors', []))  
+        genre = ', '.join(volume_info.get('categories', []))  
+        page_number = volume_info.get('pageCount', 'Unknown')
+        book_id = book.get('id', 'Unknown')
+        
+        books_list.append({
+            'id': book_id,
+            'title': title,
+            'genre': genre,
+            'page_number': page_number,
+            'authors': authors            
+        })
+    
+    return books_list
+
+def store_books_in_db(books_list):
+    for book in books_list:
+       
+        existing_book = Books.query.filter_by(id=book['id']).first()
+        
+        if not existing_book:
+            
+            new_book = Books(
+                id=book['id'],
+                title=book['title'],
+                genre=book['genre'],
+                page_number=book['page_number'],
+                author=book['authors']
+            )
+            
+            db.session.add(new_book)
+   
+    db.session.commit()
+
+def fetch_and_store_books(book_name):
+    try:
+        book_data = fetch_data(book_name)
+        
+        books_list = extract_book_data(book_data)
+        
+        store_books_in_db(books_list)
+        return "Books successfully stored in the database."
+    except Exception as e:
+        return f"An error occurred: {e}"
 
 
 @app.route('/home', methods=['POST', 'GET'])
@@ -128,79 +188,53 @@ def login():
     return  jsonify({'token' : access_token}), 200
 
 
-@app.route('/search', methods=['POST','GET'])
-@jwt_required()
+@app.route('/search', methods=['GET', 'POST'])
+#@jwt_required()
 def search_page():
-    current_user = get_jwt_identity()  
-    search_query = request.form.get('query')
-    
-    if not search_query:
-        return 'please profide a book name', 400
-    
-    API_KEY = 'AIzaSyAKunAimLH4KP7tBRBulOfZSYDTlPgI6rI'
-    api_url = f'https://www.googleapis.com/books/v1/volumes?q={search_query}&key={API_KEY}'
-    
-    response = requests.get(api_url)
-    
-    if response.status_code == 200:
-        data = response.json()
-#         books = data.get('items', [])
-        
-#         book_list =[]
-#         for book in books:
-#             book_info = book.get('volumeInfo', {})
-#             book_title = book_info.get('title', 'No Title')
-#             authors = ', '.join(book_info.get('authors', ['Unknown Author']))  
-#             genre = ', '.join(book_info.get('categories', ['Unknown Genre']))  
-#             page_count = book_info.get('pageCount', 'N/A')
+  if request.method == 'POST':
+        book_name = request.form.get('q')
+  elif request.method == 'GET':
+        book_name = request.args.get('q')
+  if book_name:  
+        message = fetch_and_store_books(book_name)
+        return jsonify({"message": message}), 200 
+  else:
+        return jsonify({"error": "Book name is required"}), 400
 
-# # Add the extracted data to the list
-#             book_list.append({
-#                     'id': book['id'],
-#                     'title': book_title,
-#                     'authors': authors,
-#                     'genre': genre,
-#                     'page_count': page_count
-#                  })
-        return render_template('search.html', data=data, query=search_query)
-    
-    else:
-        return f"Error fetching results from Google Books API: {response.status_code}", 500
-
-# @app.route('/add_book', methods=['POST'])
+@app.route('/add_book', methods=['POST'])
 # @jwt_required()
-# def add_book():
-#     current_user = get_jwt_identity()  
-#     user_id = current_user['id']  
+def add_book():
+    current_user = get_jwt_identity()  
+    user_id = current_user['id']  
 
 
-#     book_id = request.form.get('book_id')
-#     book_title = request.form.get('book_title')
-#     book_authors = request.form.get('book_authors')
-#     book_genre = request.form.get('book_genre')
-#     book_page_count = request.form.get('book_page_count')
+    book_id = request.form.get('book_id')
+    book_title = request.form.get('book_title')
+    book_authors = request.form.get('book_authors')
+    book_genre = request.form.get('book_genre')
+    book_page_count = request.form.get('book_page_count')
 
    
-#     user_book = UserBook.query.filter_by(user_id=user_id, book_id=book_id).first()
-#     if user_book:
-#         return jsonify({'message': 'Book already in your list'}), 400
+    user_book = UserBook.query.filter_by(user_id=user_id, book_id=book_id).first()
+    if user_book:
+        return jsonify({'message': 'Book already in your list'}), 400
 
  
-#     new_user_book = UserBook(
+    new_user_book = UserBook(
     
-#         book_id=book_id,
-#         book_genre=book_genre,
-#         book_authors=book_authors,
-#         book_title=book_title,
-#         book_page_count=book_page_count,
-#          user_id=user_id
+        book_id=book_id,
+        book_genre=book_genre,
+        book_authors=book_authors,
+        book_title=book_title,
+        book_page_count=book_page_count,
+         user_id=user_id
 
-#     )
+    )
     
-#     db.session.add(new_user_book)
-#     db.session.commit()
+    db.session.add(new_user_book)
+    db.session.commit()
 
-#     return jsonify({'message': 'Book added to your list successfully'}), 201
+    return jsonify({'message': 'Book added to your list successfully'}), 201
 
 
 
