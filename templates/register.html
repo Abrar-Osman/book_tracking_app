@@ -22,7 +22,7 @@
                   <div class="col-md-6 col-lg-7 d-flex align-items-center" >
                     <div class="card-body p-4 p-lg-5 text-black" >
       
-                      <form class="was-validated" action="" method="POST">
+                      <form class="was-validated" action="/register" method="POST">
       
                         <div class="d-flex align-items-center mb-3 pb-1">
                           <a href="/" class="text-decoration-none"></a><span class="h1 fw-bold mb-0 text-warning">BOOK TRACKER</span></a>
@@ -34,15 +34,20 @@
                             <label for="email" class="form-label text-light">Email:</label>
                             <input type="email" class="form-control" id="email" placeholder="Enter email" name="email" required>
                         </div>
+
+                        <div data-mdb-input-init class="form-outline mb-4">
+                          <label for="username" class="form-label text-light">Username:</label>
+                          <input type="text" class="form-control" id="username" placeholder="Enter Username" name="username" required>
+                      </div>
       
                         <div data-mdb-input-init class="form-outline mb-4">
-                            <label for="pwd" class="form-label text-light">Password:</label>
-                            <input type="password" class="form-control" id="pwd" placeholder="Enter password" name="password" required>
+                            <label for="password" class="form-label text-light">Password:</label>
+                            <input type="password" class="form-control" id="password" placeholder="Enter password" name="password" required>
                         </div>
 
                         <div data-mdb-input-init class="form-outline mb-4">
-                            <label for="pwd" class="form-label text-light">Enter the Password Again:</label>
-                            <input type="password" class="form-control" id="pwd" placeholder="Re enter password" name="password" required>
+                            <label for="password" class="form-label text-light">Enter the Password Again:</label>
+                            <input type="password" class="form-control" id="password" placeholder="Re enter password" name="password" required>
                         </div>
       
                         <div class="pt-1 mb-4">

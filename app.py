@@ -1,8 +1,7 @@
 
 from models import User, Books, UserBook, db
 import datetime
-from functools import wraps
-from flask import Flask, request, jsonify
+from flask import Flask, redirect, render_template, request, jsonify, url_for
 from dotenv import load_dotenv
 import os
 from flask_migrate import Migrate, migrate
@@ -27,6 +26,7 @@ app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
 
 
 # intializing the extensions
+db.init_app(app)
 migrate = Migrate(app, db)
 Jwt = JWTManager(app)
 
@@ -34,13 +34,6 @@ Jwt = JWTManager(app)
 # this line solve the issues that the db cant run without the app_context method
 with app.app_context():
     db.create_all() 
-
-# function to generate the html pages
-def get_html(page_name):
-    html_page = open(page_name + '.html')
-    content = html_page.read()
-    html_page.close()
-    return content
 
 
 # function to manage authorization to the routes that need one
@@ -74,8 +67,22 @@ def get_html(page_name):
 
 
 
-@app.route('/register', methods=['POST'])
+@app.route('/home', methods=['POST', 'GET'])
+def homepage():
+    return render_template('index.html')
+
+
+
+@app.route('/', methods=['POST', 'GET'])
+def welcome():
+    return render_template('home.html')
+
+
+@app.route('/register', methods=['POST', 'GET'])
 def register():
+    if request.method == 'GET':
+        return render_template('register.html') 
+    
     data = request.form
     email = data.get('email')
     password = data.get('password')
@@ -85,37 +92,46 @@ def register():
         return jsonify({'message' : 'email or username and password are required!!'}), 400
     
     
-    if User.query.filterby(email=email).first() or User.query.filterby(username = username).first():
+    if User.query.filter_by(email=email).first() or User.query.filter_by(username = username).first():
         return jsonify({'message' : 'User already exist!!'}), 400
     
-    new_user = User(email = email, username = username)
-    new_user.set_password(password)
+
+    hash_password = generate_password_hash(password)
+    new_user = User(email = email, username = username, password = hash_password)
     
     db.session.add(new_user)
     db.session.commit()
 
-    return jsonify({"message": "User registered successfully!"}), 201
+    return  redirect(url_for('homepage'))
     
     
-    
-@app.route('/login', methods=['POST'])
+@app.route('/login', methods=['POST', 'GET'])
 def login():
-    data = request.form
+    if request.method == 'GET':
+        return render_template('login.html') 
+
+    data = request.get_json()
+    if not data or 'email' not in data or 'password' not in data:
+        return jsonify({"msg": "Missing email or password"}), 400
+
+
     email = data['email']
     password = data['password']
 
     user = User.query.filter_by(email = email).first()
 
-    if not user or not check_password_hash(password):
+    if not user or not check_password_hash(user.password, password):
         return jsonify({'message' : 'Wrong Credintioal!!'}), 401
-    access_token = create_access_token(identity=user.id, expires_delta=datetime.timedelta(minutes=30))
     
-    return jsonify({'token' : access_token})
-    
-@app.route('/search', methods=['POST'])
-@jwt_required
+    access_token = create_access_token(identity=user.id, expires_delta=datetime.timedelta(minutes=300))
+ 
+    return  jsonify({'token' : access_token}), 200
+
+
+@app.route('/search', methods=['POST','GET'])
+@jwt_required()
 def search_page():
-    current_user = get_jwt_identity()
+    current_user = get_jwt_identity()  
     search_query = request.form.get('query')
     
     if not search_query:
@@ -128,61 +144,63 @@ def search_page():
     
     if response.status_code == 200:
         data = response.json()
-        books = data.get('items', [])
+#         books = data.get('items', [])
         
-        book_list =[]
-        for book in books:
-            book_info = book.get('volumeInfo', {})
-            book_title = book_info.get('title', 'No Title')
-            authors = ', '.join(book_info.get('authors', ['Unknown Author']))  
-            genre = ', '.join(book_info.get('categories', ['Unknown Genre']))  
-            page_count = book_info.get('pageCount', 'N/A')
+#         book_list =[]
+#         for book in books:
+#             book_info = book.get('volumeInfo', {})
+#             book_title = book_info.get('title', 'No Title')
+#             authors = ', '.join(book_info.get('authors', ['Unknown Author']))  
+#             genre = ', '.join(book_info.get('categories', ['Unknown Genre']))  
+#             page_count = book_info.get('pageCount', 'N/A')
 
-                # Add the extracted data to the list
-            book_list.append({
-                    'id': book['id'],
-                    'title': book_title,
-                    'authors': authors,
-                    'genre': genre,
-                    'page_count': page_count
-                })
-        #return render_template('results.html', books=book_list, query=search_query)
+# # Add the extracted data to the list
+#             book_list.append({
+#                     'id': book['id'],
+#                     'title': book_title,
+#                     'authors': authors,
+#                     'genre': genre,
+#                     'page_count': page_count
+#                  })
+        return render_template('search.html', data=data, query=search_query)
     
     else:
         return f"Error fetching results from Google Books API: {response.status_code}", 500
 
-@app.route('/add_book', methods=['POST'])
-@jwt_required()  
-def add_book():
-    current_user = get_jwt_identity()  
-    user_id = current_user['id']  
+# @app.route('/add_book', methods=['POST'])
+# @jwt_required()
+# def add_book():
+#     current_user = get_jwt_identity()  
+#     user_id = current_user['id']  
 
 
-    book_id = request.form.get('book_id')
-    book_title = request.form.get('book_title')
-    book_authors = request.form.get('book_authors')
-    book_genre = request.form.get('book_genre')
-    book_page_count = request.form.get('book_page_count')
+#     book_id = request.form.get('book_id')
+#     book_title = request.form.get('book_title')
+#     book_authors = request.form.get('book_authors')
+#     book_genre = request.form.get('book_genre')
+#     book_page_count = request.form.get('book_page_count')
 
    
-    user_book = UserBook.query.filter_by(user_id=user_id, book_id=book_id).first()
-    if user_book:
-        return jsonify({'message': 'Book already in your list'}), 400
+#     user_book = UserBook.query.filter_by(user_id=user_id, book_id=book_id).first()
+#     if user_book:
+#         return jsonify({'message': 'Book already in your list'}), 400
 
  
-    new_user_book = UserBook(
-        user_id=user_id,
-        book_id=book_id,
-        book_title=book_title,
-        book_authors=book_authors,
-        book_genre=book_genre,
-        book_page_count=book_page_count
-    )
+#     new_user_book = UserBook(
     
-    db.session.add(new_user_book)
-    db.session.commit()
+#         book_id=book_id,
+#         book_genre=book_genre,
+#         book_authors=book_authors,
+#         book_title=book_title,
+#         book_page_count=book_page_count,
+#          user_id=user_id
 
-    return jsonify({'message': 'Book added to your list successfully'}), 201
+#     )
+    
+#     db.session.add(new_user_book)
+#     db.session.commit()
+
+#     return jsonify({'message': 'Book added to your list successfully'}), 201
 
 
 
