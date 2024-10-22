@@ -118,21 +118,7 @@ def store_books_in_db(books_list):
 
 @app.route('/home', methods=['POST', 'GET'])
 def homepage():
-    if request.method == 'GET':
         return render_template('index.html')
-    else:
-        book_name = request.form.get('q')
-        print(book_name)
-        if book_name:  
-            try:
-                book_data = fetch_data(book_name)
-                
-                books_list = extract_book_data(book_data)
-                
-                redirect(url_for('search', books_list=books_list))
-                # return render_template('search.html', data=books_list)
-            except Exception as e:
-                return render_template('index.html')
 
 
 
@@ -195,14 +181,11 @@ def login():
 
 @app.route('/search', methods=['GET', 'POST'])
 @jwt_required()
-# def search_page():
+def search_page():
   
-#   elif request.method == 'GET':
-#         book_name = request.args.get('q')
-  
-       
-#   else:
-#         return jsonify({"error": "Book name is required"}), 400
+  if request.method == 'POST':
+       book_name = request.form.get('')
+        
 
 # @app.route('/add_book', methods=['POST', 'GET'])
 # @jwt_required()

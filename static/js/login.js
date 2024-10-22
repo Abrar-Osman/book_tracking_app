@@ -46,36 +46,36 @@ function logoutUser(){
 }
 
 
-// function searchBook(q){
-//     // q.preventDefault()
+function searchBook(e){
+    e.preventDefault()
 
-//         const search = document.getElementById('search').value;
-//         const token = localStorage.getItem('token');  
+    const search = document.getElementById('search').value;
+    const token = localStorage.getItem('token');  
 
-//         if (!token) {
-//             alert('You need to log in first.');
-//             return;
-//         }
+        if (!token) {
+            alert('You need to log in first.');
+            window.location.href = '/login';
+        }
     
-//         fetch('/search', {
-//             method: 'POST',
-//             headers: {
-//                 'Content-Type': 'application/json',
-//                 'Authorization': `Bearer ${token}`  
-//             },
-//             body: JSON.stringify({
-//                 search
-//             })
-//         })
-//         .then(response => response.json())
-//         .then(data => {
-//             alert(data.message);
-//         })
-//         .catch(error => {
-//             console.error('Error:', error);
-//             alert('Failed to add the book.');
-//         });
-//     }
+        fetch('/search', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`  
+            },
+            body: JSON.stringify({
+                'search' : search
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to add the book.');
+        });
+    }
     
 
 
