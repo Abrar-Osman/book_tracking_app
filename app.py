@@ -118,7 +118,7 @@ def store_books_in_db(books_list):
 
 @app.route('/home', methods=['POST', 'GET'])
 def homepage():
-        return render_template('index.html')
+    return render_template('index.html')
 
 
 
@@ -179,13 +179,12 @@ def login():
 
 
 
-@app.route('/search', methods=[ 'POST'])
-@jwt_required
+@app.route('/search', methods=[ 'POST', 'GET'])
 def search_page():
   
-    data = request.get_json()
-    book_name = data.get('search')
-
+    data = request.form
+    book_name = data.get('q')
+    
     if not book_name:
         return jsonify({"message": "Search term cannot be empty"}), 400
   
