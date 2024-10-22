@@ -55,6 +55,7 @@ function searchBook(e){
         if (!token) {
             alert('You need to log in first.');
             window.location.href = '/login';
+            return;
         }
     
         fetch('/search', {

@@ -179,22 +179,22 @@ def login():
 
 
 
-@app.route('/search', methods=['GET', 'POST'])
+@app.route('/search', methods=[ 'POST'])
+@jwt_required
 def search_page():
   
-  if request.method == 'POST':
-    book_name = request.form.get('q')
+    data = request.get_json()
+    book_name = data.get('search')
 
-  elif request.method == 'GET' :
-    book_name = request.args.get('q')
-
-  if book_name == '':
-     return redirect()
+    if not book_name:
+        return jsonify({"message": "Search term cannot be empty"}), 400
   
-  data = fetch_data(book_name)
-  book_list = extract_book_data(data)
+    data = fetch_data(book_name)
+    if not data:
+        return jsonify({"message": "No books found"}), 404
+    book_list = extract_book_data(data)
 
-  return render_template('search.html', data = book_list)
+    return render_template('search.html', data=book_list)
 
 # @app.route('/add_book', methods=['POST', 'GET'])
 # @jwt_required()
