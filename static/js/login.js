@@ -38,25 +38,81 @@ async function loginUser(event) {
 }
 
 
+function logoutUser(){
 
-function accessProtectedPage() {
-    const token = localStorage.getItem('access_token');
-    if (!token) {    
-        window.location.href = '/login';
-    } else {
-        
-        fetch('/search', {
-            method: 'GET',
-            headers: {
-                'Authorization': 'Bearer ${token}'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log(data);  
-        });
-    }
+    localStorage.removeItem('token');
+    window.location.href = '/';
+
 }
+
+
+// function searchBook(q){
+//     // q.preventDefault()
+
+//         const search = document.getElementById('search').value;
+//         const token = localStorage.getItem('token');  
+
+//         if (!token) {
+//             alert('You need to log in first.');
+//             return;
+//         }
+    
+//         fetch('/search', {
+//             method: 'POST',
+//             headers: {
+//                 'Content-Type': 'application/json',
+//                 'Authorization': `Bearer ${token}`  
+//             },
+//             body: JSON.stringify({
+//                 search
+//             })
+//         })
+//         .then(response => response.json())
+//         .then(data => {
+//             alert(data.message);
+//         })
+//         .catch(error => {
+//             console.error('Error:', error);
+//             alert('Failed to add the book.');
+//         });
+//     }
+    
+
+
+
+// const accessProtected = async (e) => {
+//     e.preventDefault();  
+    
+//     const options = {
+//         method: 'POST',
+//         headers: {
+//             Authorization: `Bearer ${localStorage.getItem('jwt')}`,
+//         }
+//     };
+
+//     try {
+//         const response = await fetch('/protected', options);
+//         if (!response.ok) {
+//             window.location.href = '/login';
+//             return;
+//         }
+
+//         const data = await response.json();
+//         console.log(data);  
+//     } catch (error) {
+//         console.error('Error accessing protected route:', error);
+        
+//     }
+// };
+
+// protectedLinks = document.getElementsByClassName('.protected')
+
+// protectedLinks.forEach(link => {
+//     link.addEventListener('click', accessProtected);  
+// });
+
+
+
 
 
 

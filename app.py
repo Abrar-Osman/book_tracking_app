@@ -115,21 +115,24 @@ def store_books_in_db(books_list):
    
     db.session.commit()
 
-def fetch_and_store_books(book_name):
-    try:
-        book_data = fetch_data(book_name)
-        
-        books_list = extract_book_data(book_data)
-        
-        store_books_in_db(books_list)
-        return "Books successfully stored in the database."
-    except Exception as e:
-        return f"An error occurred: {e}"
-
 
 @app.route('/home', methods=['POST', 'GET'])
 def homepage():
-    return render_template('index.html')
+    if request.method == 'GET':
+        return render_template('index.html')
+    else:
+        book_name = request.form.get('q')
+        print(book_name)
+        if book_name:  
+            try:
+                book_data = fetch_data(book_name)
+                
+                books_list = extract_book_data(book_data)
+                
+                redirect(url_for('search', books_list=books_list))
+                # return render_template('search.html', data=books_list)
+            except Exception as e:
+                return render_template('index.html')
 
 
 
@@ -188,53 +191,54 @@ def login():
     return  jsonify({'token' : access_token}), 200
 
 
+
+
 @app.route('/search', methods=['GET', 'POST'])
-#@jwt_required()
-def search_page():
-  if request.method == 'POST':
-        book_name = request.form.get('q')
-  elif request.method == 'GET':
-        book_name = request.args.get('q')
-  if book_name:  
-        message = fetch_and_store_books(book_name)
-        return jsonify({"message": message}), 200 
-  else:
-        return jsonify({"error": "Book name is required"}), 400
+@jwt_required()
+# def search_page():
+  
+#   elif request.method == 'GET':
+#         book_name = request.args.get('q')
+  
+       
+#   else:
+#         return jsonify({"error": "Book name is required"}), 400
 
-@app.route('/add_book', methods=['POST'])
+# @app.route('/add_book', methods=['POST', 'GET'])
 # @jwt_required()
-def add_book():
-    current_user = get_jwt_identity()  
-    user_id = current_user['id']  
+# def add_book():
+#     current_user = get_jwt_identity()  
+#     user_id = current_user 
 
-
-    book_id = request.form.get('book_id')
-    book_title = request.form.get('book_title')
-    book_authors = request.form.get('book_authors')
-    book_genre = request.form.get('book_genre')
-    book_page_count = request.form.get('book_page_count')
+    
+#     book_id = request.form.get('book_id')
+#     book_title = request.form.get('book_title')
+#     book_authors = request.form.get('book_authors')
+#     book_genre = request.form.get('book_genre')
+#     book_page_count = request.form.get('book_page_count')
 
    
-    user_book = UserBook.query.filter_by(user_id=user_id, book_id=book_id).first()
-    if user_book:
-        return jsonify({'message': 'Book already in your list'}), 400
+#     user_book = UserBook.query.filter_by(user_id=user_id, book_id=book_id).first()
+#     if user_book:
+#         return jsonify({'message': 'Book already in your list'}), 400
 
  
-    new_user_book = UserBook(
+#     new_user_book = UserBook(
+        
+#         id = id,
+#         user_id=user_id,
+#         book_id=book_id,
+#         book_title=book_title,
+#         book_authors=book_authors,
+#         book_genre=book_genre,
+#         book_page_count=book_page_count,
+        
+#     )
     
-        book_id=book_id,
-        book_genre=book_genre,
-        book_authors=book_authors,
-        book_title=book_title,
-        book_page_count=book_page_count,
-         user_id=user_id
+#     db.session.add(new_user_book)
+#     db.session.commit()
 
-    )
-    
-    db.session.add(new_user_book)
-    db.session.commit()
-
-    return jsonify({'message': 'Book added to your list successfully'}), 201
+#     return jsonify({'message': 'Book added to your list successfully'}), 201
 
 
 
