@@ -180,12 +180,21 @@ def login():
 
 
 @app.route('/search', methods=['GET', 'POST'])
-@jwt_required()
 def search_page():
   
   if request.method == 'POST':
-       book_name = request.form.get('')
-        
+    book_name = request.form.get('q')
+
+  elif request.method == 'GET' :
+    book_name = request.args.get('q')
+
+  if book_name == '':
+     return redirect()
+  
+  data = fetch_data(book_name)
+  book_list = extract_book_data(data)
+
+  return render_template('search.html', data = book_list)
 
 # @app.route('/add_book', methods=['POST', 'GET'])
 # @jwt_required()
