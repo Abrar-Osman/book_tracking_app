@@ -9,20 +9,22 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ url_for('static', filename='js/login.js') }}"></script>
     <script>
-    const token = localStorage.getItem('token');  
-        if (!token) {
-            alert('You need to log in first.');
-            window.location.href = '/login';
-            return;
-        }
-      </script>
+      document.addEventListener('DOMContentLoaded', function() {
+          const token = localStorage.getItem('token');
+          const user_id = localStorage.getItem('userId');
+          if (!token) {
+              alert('Token not found, please log in!');
+              window.location.href = '/login';
+          } 
+      });
+  </script>
 </head>
 <body>
   <div class="container p-1 my-2 ">
     <nav class="navbar navbar-expand-sm bg-secondary">
               
       <div class="container-fluid ">
-          <a href="/" class="text-decoration-none"><span class="navbar-text mb-0 h4 text-warning">BOOK TRACKER</span></a>
+          <a href="/home" class="text-decoration-none"><span class="navbar-text mb-0 h4 text-warning">BOOK TRACKER</span></a>
         <ul class="navbar-nav">
           <li class="nav-item">
             <a class="nav-link text-light"  href="/home">My Books</a>
@@ -63,9 +65,22 @@
         {% for key, value in dict_item.items() %}
         <td> {{value}} </td>
         {% endfor%}
-        <td><form class="d-flex" action="/add_book" method="POST, GET">
+        <td> <form action="/add_book" method="GET , POST" >
+          <input type="hidden" name="user_id" value="{{ user_id }}">
+          <input type="hidden" name="book_id" value="{{ dict_item['id'] }}">
+          <input type="hidden" name="title" value="{{ dict_item['title'] }}">
+          <input type="hidden" name="genre" value="{{ dict_item['genre'] }}">
+          <input type="hidden" name="page_number" value="{{ dict_item['page_number'] }}">
+          <input type="hidden" name="authors" value="{{ dict_item['authors'] }}">
           <button class="btn btn-warning btn-sm" type="submit">Add Book</button>
-        </form></td>
+        </form>
+        <script>
+          document.addEventListener('DOMContentLoaded', function() {
+              const userId = localStorage.getItem('userId');
+              document.getElementById('user_id').value = userId; 
+          });
+      </script>
+        </td>
       </tr>
       {% endfor %}
     </tbody>

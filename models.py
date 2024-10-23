@@ -72,12 +72,11 @@ class UserBook(db.Model):
     book = db.relationship('Books', back_populates='users')
 
 
-    def __init__(self, id , user_id, book_id, book_title, book_authors, book_genre, book_page_count):
+    def __init__(self, user_id, book_id, book_title, book_authors, book_genre, book_page_count):
        self.book_id = book_id
        self.book_genre = book_genre
        self.book_authors = book_authors
        self.book_title = book_title
-       self.id = id
        self.book_page_count = book_page_count
        self.user_id = user_id
     

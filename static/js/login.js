@@ -25,9 +25,12 @@ async function loginUser(event) {
 
         const data = await response.json();
         const token = data.token;
+        const tokenPayload = JSON.parse(atob(data.token.split('.')[1]));
+        const userId = tokenPayload.sub;
 
         
         localStorage.setItem('token', token);
+        localStorage.setItem('userId', userId);
 
         
         window.location.href = '/home'; 
@@ -37,6 +40,11 @@ async function loginUser(event) {
     }
 }
 
+function decodeToken(token) {
+    const payload = token.split('.')[1];
+    return JSON.parse(atob(payload));
+}
+
 
 function logoutUser(){
 
@@ -44,6 +52,47 @@ function logoutUser(){
     window.location.href = '/';
 
 }
+
+// function addBook(event, bookId) {
+//     event.preventDefault(); 
+    
+//     const token = localStorage.getItem('token'); 
+    
+    
+//     const form = document.getElementById(`add-book-form-${bookId}`);
+    
+    
+//     const formData = new FormData(form);
+    
+    
+//     const data = {
+//       book_id: formData.get('book_id'),
+//       book_title: formData.get('title'),
+//       book_authors: formData.get('authors'),
+//       book_genre: formData.get('genre'),
+//       book_page_count: formData.get('page_numbers')
+//     };
+    
+    
+//     fetch('/add_book', {
+//       method: 'POST',
+//       headers: {
+//         'Content-Type': 'application/json',
+//         'Authorization': `Bearer ${token}` 
+//       },
+//       body: JSON.stringify(data) 
+//     })
+//     .then(response => response.json())
+//     .then(result => {
+//       if (result.message) {
+//         alert(result.message); 
+//       } else {
+//         alert('Error: ' + result.error); 
+//       }
+//     })
+//     .catch(error => console.error('Error:', error));
+//   }
+  
 
 
 function searchBook(e){
@@ -59,7 +108,7 @@ function searchBook(e){
         }
     
         fetch('/search', {
-            method: 'POST',
+            method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`  
@@ -68,9 +117,15 @@ function searchBook(e){
                 'search' : search
             })
         })
-        .then(response => response.json())
+        .then(response => 
+        {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`); // Throws an error if the response is not ok
+            }
+            return response.json();
+        }
+        )
         .then(data => {
-            alert(data.message);
         })
         .catch(error => {
             console.error('Error:', error);
@@ -85,7 +140,7 @@ function searchBook(e){
 //     e.preventDefault();  
     
 //     const options = {
-//         method: 'POST',
+//         method: 'GET',
 //         headers: {
 //             Authorization: `Bearer ${localStorage.getItem('jwt')}`,
 //         }

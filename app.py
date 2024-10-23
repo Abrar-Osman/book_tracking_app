@@ -118,6 +118,9 @@ def store_books_in_db(books_list):
 
 @app.route('/home', methods=['POST', 'GET'])
 def homepage():
+    
+    user_books = UserBook.query.filter_by(user_id=user_id).all() 
+   
     return render_template('index.html')
 
 
@@ -179,10 +182,10 @@ def login():
 
 
 
-@app.route('/search', methods=[ 'POST', 'GET'])
+@app.route('/search', methods=[ 'GET'])
 def search_page():
-  
-    data = request.form
+    
+    data = request.args
     book_name = data.get('q')
     
     if not book_name:
@@ -192,45 +195,43 @@ def search_page():
     if not data:
         return jsonify({"message": "No books found"}), 404
     book_list = extract_book_data(data)
-
+    store_books_in_db(book_list)
     return render_template('search.html', data=book_list)
 
-# @app.route('/add_book', methods=['POST', 'GET'])
-# @jwt_required()
-# def add_book():
-#     current_user = get_jwt_identity()  
-#     user_id = current_user 
 
+@app.route('/add_book', methods=['GET', 'POST'])
+def add_book():
     
-#     book_id = request.form.get('book_id')
-#     book_title = request.form.get('book_title')
-#     book_authors = request.form.get('book_authors')
-#     book_genre = request.form.get('book_genre')
-#     book_page_count = request.form.get('book_page_count')
+    user_id = request.args.get('user_id')
+    book_id = request.args.get('book_id')
+    book_title = request.args.get('title')
+    book_authors = request.args.get('authors')
+    book_genre = request.args.get('genre')
+    book_page_count = request.args.get('page_number')
 
    
-#     user_book = UserBook.query.filter_by(user_id=user_id, book_id=book_id).first()
-#     if user_book:
-#         return jsonify({'message': 'Book already in your list'}), 400
+    user_book = UserBook.query.filter_by(user_id=user_id,book_id=book_id).first()
+    if user_book:
+        return jsonify({'message': 'Book already in your list'}), 400
 
  
-#     new_user_book = UserBook(
+    new_user_book = UserBook(
         
-#         id = id,
-#         user_id=user_id,
-#         book_id=book_id,
-#         book_title=book_title,
-#         book_authors=book_authors,
-#         book_genre=book_genre,
-#         book_page_count=book_page_count,
+        user_id=user_id,
+        book_id=book_id,
+        book_title=book_title,
+        book_authors=book_authors,
+        book_genre=book_genre,
+        book_page_count=book_page_count,
         
-#     )
+    )
+        
+    db.session.add(new_user_book)
+    db.session.commit()
     
-#     db.session.add(new_user_book)
-#     db.session.commit()
+    return render_template('book_list.html' )
 
-#     return jsonify({'message': 'Book added to your list successfully'}), 201
-
+@app.route ()
 
 
 
