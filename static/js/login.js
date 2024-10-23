@@ -1,4 +1,8 @@
 
+// 
+
+
+
 async function loginUser(event) {
     event.preventDefault(); 
 
@@ -6,7 +10,7 @@ async function loginUser(event) {
     const password = document.getElementById('password').value;
 
     try {
-        const response = await fetch('/login', {
+        const response = await fetch('/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -53,6 +57,80 @@ function logoutUser(){
 
 }
 
+
+// async function searchBook(e){
+//     e.preventDefault()
+
+//     const search = document.getElementById('search').value;
+//     const token = localStorage.getItem('token');  
+
+//         if (!token) {
+//             alert('You need to log in first.');
+//             window.location.href = '/login';
+//             return;
+//         }
+//     try {
+//         const reponse = await fetch('/search', {
+//             method: 'POST',
+//             headers: {
+//                 'Content-Type': 'application/json',
+//                 'Authorization': `Bearer ${token}`  
+//             },
+//             body: JSON.stringify({
+//                 'search' : search
+//             })
+//         })
+        
+//         if (!response.ok) {
+//             const errorData = await response.json();
+//             alert(errorData.message); 
+//             return;
+//         }
+         
+//         window.location.href = '/home'; 
+//     }
+
+//         catch(error) {
+//             console.error('Error:', error);
+//             alert('Failed to get the book.');
+//         };
+//     }
+    
+
+
+
+// const accessProtected = async (e) => {
+//     e.preventDefault();  
+    
+//     const options = {
+//         method: 'GET',
+//         headers: {
+//             Authorization: `Bearer ${localStorage.getItem('jwt')}`,
+//         }
+//     };
+
+//     try {
+//         const response = await fetch('/protected', options);
+//         if (!response.ok) {
+//             window.location.href = '/login';
+//             return;
+//         }
+
+//         const data = await response.json();
+//         console.log(data);  
+//     } catch (error) {
+//         console.error('Error accessing protected route:', error);
+        
+//     }
+// };
+
+// protectedLinks = document.getElementsByClassName('.protected')
+
+// protectedLinks.forEach(link => {
+//     link.addEventListener('click', accessProtected);  
+// });
+
+
 // function addBook(event, bookId) {
 //     event.preventDefault(); 
     
@@ -93,82 +171,6 @@ function logoutUser(){
 //     .catch(error => console.error('Error:', error));
 //   }
   
-
-
-function searchBook(e){
-    e.preventDefault()
-
-    const search = document.getElementById('search').value;
-    const token = localStorage.getItem('token');  
-
-        if (!token) {
-            alert('You need to log in first.');
-            window.location.href = '/login';
-            return;
-        }
-    
-        fetch('/search', {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`  
-            },
-            body: JSON.stringify({
-                'search' : search
-            })
-        })
-        .then(response => 
-        {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`); // Throws an error if the response is not ok
-            }
-            return response.json();
-        }
-        )
-        .then(data => {
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Failed to add the book.');
-        });
-    }
-    
-
-
-
-// const accessProtected = async (e) => {
-//     e.preventDefault();  
-    
-//     const options = {
-//         method: 'GET',
-//         headers: {
-//             Authorization: `Bearer ${localStorage.getItem('jwt')}`,
-//         }
-//     };
-
-//     try {
-//         const response = await fetch('/protected', options);
-//         if (!response.ok) {
-//             window.location.href = '/login';
-//             return;
-//         }
-
-//         const data = await response.json();
-//         console.log(data);  
-//     } catch (error) {
-//         console.error('Error accessing protected route:', error);
-        
-//     }
-// };
-
-// protectedLinks = document.getElementsByClassName('.protected')
-
-// protectedLinks.forEach(link => {
-//     link.addEventListener('click', accessProtected);  
-// });
-
-
-
 
 
 

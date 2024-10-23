@@ -9,11 +9,12 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ url_for('static', filename='js/login.js') }}"></script>
     <script>
+      // to validate the user manually
       document.addEventListener('DOMContentLoaded', function() {
           const token = localStorage.getItem('token');
           if (!token) {
               alert('Token not found, please log in!');
-              window.location.href = '/login';
+              window.location.href = '/';
           } 
       });
   </script>
@@ -24,16 +25,6 @@
             
             <div class="container-fluid">
                 <a href="/" class="text-decoration-none"><span class="navbar-text mb-0 h4 text-warning">BOOK TRACKER</span></a>
-              <ul class="navbar-nav">
-                <li class="nav-item">
-                  <a class="nav-link text-light"  href="/home">My Books</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link text-light"  href="#">Analytics</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link text-light"  href="#">Dialy log</a>
-                </li> 
                 <li class="nav-item">
                   <button class="btn btn-warning btn-sm m-2 " type="submit" onclick="logoutUser()">logout</button>
                 </li>                 
@@ -46,19 +37,32 @@
           </nav>
 
           <section class="vh-100"> 
-            <div class="row row-cols-1 row-cols-md-3 g-4">
-              {% for book in books%}
-              <div class="col">
-                <div class="card h-100">
-                  <img src="../static/book.jpg" class="card-img-top" alt="Palm Springs Road"/>
-                  <div class="card-body">
-                    <h5 class="card-title"> {{book.book_title}} </h5>
-                    <a href="#" class="btn btn-primary">Delete</a>
-                  </div>
-                </div>
-              </div>
-              {% endfor%}
-            </div>
+            <table class="table table-hover table-striped mt-5">
+              <thead class="table-dark">
+                <tr>
+                  <th scope="col" class="text-warning">#</th>
+                  <th scope="col" class="text-warning">Title</th>
+                  <th scope="col" class="text-warning">Authers</th>
+                  <th scope="col" class="text-warning">genre</th>
+                  <th scope="col" class="text-warning">page_numbers</th>
+                  <th scope="col" class="text-warning">Delete</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for book in books%}
+                <tr>
+                  <th scope="row"> {{loop.index}} </th>
+                  <td> {{book.book_title}} </td>
+                  <td> {{book.book_authors}} </td>
+                  <td> {{book.book_genre}} </td>
+                  <td> {{book.book_page_count}} </td>
+                  <td>
+                    <form action="/delete" method="POST, GET">
+                    <input type="hidden" name="book_id" value="{{ book.id }}">
+                    <button class="btn btn-warning btn-sm" type="submit">Delete</button>
+                  </form>
+                  </td>
+                  {% endfor %}
         </section>
           
 

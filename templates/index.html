@@ -9,31 +9,23 @@
       <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
       <script src="{{ url_for('static', filename='js/login.js') }}"></script>
       <script>
+        // to validate the user manually
         document.addEventListener('DOMContentLoaded', function() {
             const token = localStorage.getItem('token');
             if (!token) {
                 alert('Token not found, please log in!');
-                window.location.href = '/login';
+                window.location.href = '/';
             } 
         });
     </script>
   </head>
-  <body>
+  <body style="background-color: #6c757d;">
       <div class="container p-1 my-2">
-          <nav class="navbar navbar-expand-sm bg-secondary">
+          <nav class="navbar navbar-expand-sm bg-secondary mb-100">
               
               <div class="container-fluid">
                   <a href="/" class="text-decoration-none"><span class="navbar-text mb-0 h4 text-warning">BOOK TRACKER</span></a>
                 <ul class="navbar-nav">
-                  <li class="nav-item">
-                    <a class="nav-link text-light"  href="/home">My Books</a>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link text-light"  href="book_list.html">Analytics</a>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link text-light"  href="#">Dialy log</a>
-                  </li> 
                   <li class="nav-item">
                     <button class="btn btn-warning btn-sm m-2 " type="submit" onclick="logoutUser()">logout</button>
                   </li>                 
@@ -43,29 +35,50 @@
                   <button class="btn btn-warning btn-sm m-2" type="submit">Search</button>
                 </form>
               </div>
-            </nav>
+            </nav>               
+              <!-- Carousel -->
+            <div id="demo" class="carousel slide " data-bs-ride="carousel">
 
-            <section class="vh-100"> 
-              <div class="row row-cols-1 row-cols-md-3 g-4">
-                {% for book in books%}
-                <div class="col">
-                  <div class="card h-100">
-                    <img src="../static/book.jpg" class="card-img-top" alt="Palm Springs Road"/>
-                    <div class="card-body">
-                      <h5 class="card-title">  </h5>
-                      <a href="#" class="btn btn-primary">Delete</a>
-                    </div>
-                  </div>
-                </div>
-                {% endfor %}
-
-                
+              <!-- Indicators/dots -->
+              <div class="carousel-indicators">
+              <button type="button" data-bs-target="#demo" data-bs-slide-to="0" class="active"></button>
+              <button type="button" data-bs-target="#demo" data-bs-slide-to="1"></button>
+              <button type="button" data-bs-target="#demo" data-bs-slide-to="2"></button>
               </div>
-          </section>
-            
-
-
-      </div>
+          
+              <!-- The slideshow/carousel -->
+              <div class="carousel-inner">
+              <div class="carousel-item active">
+                  <img src="../static/about.jpeg" alt="Los Angeles" class="d-block w-100">
+                  <div class="carousel-caption">
+                      <h3>What We Offer</h3>
+                      <p>Welcome to our Book Tracking website, where our passion for reading meets innovative technology</p>
+                    </div>
+              </div>
+              <div class="carousel-item mb-3">
+                  <img src="../static/about.jpeg" alt="Chicago" class="d-block w-100">
+                  <div class="carousel-caption">
+                      <h3>Who We Are</h3>
+                      <p>Founded by a team of bibliophiles and tech experts, we've created a platform that not only allows users to catalog their books but also to discover new favorites and connect with a community of readers</p>
+                    </div>
+              </div>
+              <div class="carousel-item">
+                  <img src="../static/about.jpeg" alt="New York" class="d-block w-100">
+                  <div class="carousel-caption">
+                      <h3>Our Goal</h3>
+                      <p>We believe every book has a story and every reader has a book that speaks to them—our goal is to bring the two together.</p>
+                    </div>
+              </div>
+              </div>
+          
+              <!-- Left and right controls/icons -->
+              <button class="carousel-control-prev" type="button" data-bs-target="#demo" data-bs-slide="prev">
+              <span class="carousel-control-prev-icon"></span>
+              </button>
+              <button class="carousel-control-next" type="button" data-bs-target="#demo" data-bs-slide="next">
+              <span class="carousel-control-next-icon"></span>
+              </button>
+          </div>
 
   </body>
   </html>

@@ -117,17 +117,8 @@ def store_books_in_db(books_list):
 
 
 @app.route('/home', methods=['POST', 'GET'])
-def homepage():
-    
-    user_books = UserBook.query.filter_by(user_id=user_id).all() 
-   
+def homepage():   
     return render_template('index.html')
-
-
-
-@app.route('/', methods=['POST', 'GET'])
-def welcome():
-    return render_template('home.html')
 
 
 @app.route('/register', methods=['POST', 'GET'])
@@ -157,7 +148,7 @@ def register():
     return  redirect(url_for('homepage'))
     
     
-@app.route('/login', methods=['POST', 'GET'])
+@app.route('/', methods=['POST', 'GET'])
 def login():
     if request.method == 'GET':
         return render_template('login.html') 
@@ -212,9 +203,8 @@ def add_book():
    
     user_book = UserBook.query.filter_by(user_id=user_id,book_id=book_id).first()
     if user_book:
-        return jsonify({'message': 'Book already in your list'}), 400
+        return render_template('index.html')
 
- 
     new_user_book = UserBook(
         
         user_id=user_id,
@@ -228,12 +218,25 @@ def add_book():
         
     db.session.add(new_user_book)
     db.session.commit()
+
+    books = UserBook.query.filter_by(user_id=user_id)
+    return render_template('book_list.html', books=books)
+
+
+
+@app.route('/delete', methods=['POST', 'GET'])
+def delete():
+    id = request.args.get('book_id')
+    user_book = UserBook.query.filter_by(id = id).first()
+    db.session.delete(user_book)
+    db.session.commit()
+
+    if user_book:
+        db.session.delete(user_book)
+        db.session.commit()
     
-    return render_template('book_list.html' )
-
-@app.route ()
-
-
+    return redirect(url_for('homepage'))
+    
 
 
 if __name__ == '__main__':
