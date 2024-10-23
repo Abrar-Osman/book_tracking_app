@@ -36,35 +36,6 @@ with app.app_context():
     db.create_all() 
 
 
-# function to manage authorization to the routes that need one
-# def required(func):
-#     @wraps(func)
-#     def decorated(*args, **kwargs):
-#         token = None
-        
-#     # check the presence of the  jwt token in the request header
-#         if 'Authorization' in request.header:
-#             auth_header = request.headers['authorization']
-#             token = auth_header.split(" ")[1] if len(auth_header.split(" ")) == 2 else None    
-#         if not 'Authorization':
-#             return jsonify({'message' : 'Token is missing!!'}), 401
-        
-#     # encode the token    
-#         try:
-#             data = Jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
-#             current_user = User.query.filter_by(id = data['id']).first()
-#             if not current_user:
-#                 return jsonify({'message' : 'User not found!!'}), 401
-            
-#     # check if the its expired and is valid
-#         except Jwt.expiredSignatureError:
-#             return jsonify({'message' : 'Token is expired!!'}), 401
-#         except Jwt.InvalidTokenError:
-#             return jsonify({'message', 'Token is invalid!!'}), 401
-        
-#         return func(current_user, *args, **kwargs)
-#     return decorated
-
 def fetch_data(book_name):
     API_KEY = 'AIzaSyAKunAimLH4KP7tBRBulOfZSYDTlPgI6rI'
     api_url = f"https://www.googleapis.com/books/v1/volumes?q={book_name}:keyes&key={API_KEY}"
@@ -222,6 +193,15 @@ def add_book():
     books = UserBook.query.filter_by(user_id=user_id)
     return render_template('book_list.html', books=books)
 
+@app.route('/book_list')
+def book_list():
+    try:
+
+        return render_template('book_list.html')
+
+    except:
+
+        return redirect(url_for('homepage'))
 
 
 @app.route('/delete', methods=['POST', 'GET'])
