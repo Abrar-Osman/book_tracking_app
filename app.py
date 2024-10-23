@@ -1,7 +1,7 @@
 
 from models import User, Books, UserBook, db
 import datetime
-from flask import Flask, redirect, render_template, request, jsonify, url_for
+from flask import Flask, redirect, render_template, request, jsonify, url_for, flash
 from dotenv import load_dotenv
 import os
 from flask_migrate import Migrate, migrate
@@ -103,11 +103,12 @@ def register():
     username = data.get('username')
     
     if not email or not username or not password:
-        return jsonify({'message' : 'email or username and password are required!!'}), 400
-    
+         flash("email or username and password are required!!")
+         return redirect (url_for('register'))
     
     if User.query.filter_by(email=email).first() or User.query.filter_by(username = username).first():
-        return jsonify({'message' : 'User already exist!!'}), 400
+        flash('User already exists')
+        return redirect (url_for('register'))
     
 
     hash_password = generate_password_hash(password)
@@ -126,7 +127,7 @@ def login():
 
     data = request.get_json()
     if not data or 'email' not in data or 'password' not in data:
-        return jsonify({"msg": "Missing email or password"}), 400
+        return  flash('Missing email or password')
 
 
     email = data['email']
@@ -135,7 +136,8 @@ def login():
     user = User.query.filter_by(email = email).first()
 
     if not user or not check_password_hash(user.password, password):
-        return jsonify({'message' : 'Wrong Credintioal!!'}), 401
+        flash("your credential is wrong try again!")
+        return redirect(url_for('login'))
     
     access_token = create_access_token(identity=user.id, expires_delta=datetime.timedelta(minutes=300))
  
@@ -151,11 +153,12 @@ def search_page():
     book_name = data.get('q')
     
     if not book_name:
-        return jsonify({"message": "Search term cannot be empty"}), 400
+        flash("Invalid: the search word is required.")
+        return redirect(url_for('homepage'))
   
     data = fetch_data(book_name)
     if not data:
-        return jsonify({"message": "No books found"}), 404
+         return flash("No books found")
     book_list = extract_book_data(data)
     store_books_in_db(book_list)
     return render_template('search.html', data=book_list)
@@ -200,7 +203,6 @@ def book_list():
         return render_template('book_list.html')
 
     except:
-
         return redirect(url_for('homepage'))
 
 
