@@ -58,3 +58,33 @@ function logoutUser(){
 
 }
 
+
+async function fetchSearchData() {
+    
+    try {
+        
+        
+        let search = document.getElementById('search').value;
+        const token = localStorage.getItem('token')
+        const apiUrl = `http://127.0.0.1:5000/home?q=${search}`;
+      
+        const response = await fetch(apiUrl, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        console.log(data);
+        window.location.href = `/search?q=${search}`;
+        
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    } 
+}

@@ -2,13 +2,13 @@
 
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
-
+from flask_loginmanager import UserMixin
 
 db = SQLAlchemy()
 
 
 # definr the user model 
-class User(db.Model):
+class User(db.Model, UserMixin):
     __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), nullable=False, unique = True)
@@ -17,9 +17,8 @@ class User(db.Model):
 
     books = db.relationship('UserBook', back_populates='user')
 
-    def __init__(self, id, username, email, password):
+    def __init__(self, username, email, password):
        self.username = username
-       self.id = id
        self.email = email
        self.password = password
     
@@ -28,7 +27,20 @@ class User(db.Model):
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+    
+    def get_id(self):  
+        return str(self.id)
 
+    def is_active(self):
+        return True
+    
+    def is_authenticated(self):
+        return True
+    
+    def is_anonymous(self):
+        return True          
+
+    
     # represent mothod to explain how one object of this database will look like
     def __repr__(self):
         return f" Email : {self.email}, Username : {self.username }"
@@ -46,7 +58,7 @@ class Books (db.Model):
     users = db.relationship('UserBook', back_populates='book')
     
 
-    def __init__(self, id , title, genre, page_number, author):
+    def __init__(self,id, title, genre, page_number, author):
         self.id = id
         self.title = title
         self.genre = genre

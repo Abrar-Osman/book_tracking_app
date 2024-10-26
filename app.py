@@ -1,13 +1,14 @@
 
 from models import User, Books, UserBook, db
-import datetime
 from flask import Flask, redirect, render_template, request, jsonify, url_for, flash
 from dotenv import load_dotenv
 import os
 from flask_migrate import Migrate, migrate
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 import requests
+from flask_login import login_user,LoginManager,current_user,logout_user,login_required,login_manager
+import json
+
 
 
 # load the dotenv file
@@ -21,15 +22,17 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('SQLALCHEMY_DATABASE_URI') 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = os.getenv('SQLALCHEMY_TRACK_MODIFICATIONS', default=False)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
-app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
+
 
 
 
 # intializing the extensions
 db.init_app(app)
 migrate = Migrate(app, db)
-Jwt = JWTManager(app)
+login_manager = LoginManager()
 
+login_manager.init_app(app)
+login_manager.login_view = 'login'
 
 # this line solve the issues that the db cant run without the app_context method
 with app.app_context():
@@ -91,6 +94,9 @@ def store_books_in_db(books_list):
 def homepage():   
     return render_template('index.html')
 
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int (user_id))
 
 @app.route('/register', methods=['POST', 'GET'])
 def register():
@@ -112,11 +118,12 @@ def register():
     
 
     hash_password = generate_password_hash(password)
-    new_user = User(email = email, username = username, password = hash_password)
+    new_user = User( email = email, username = username, password = hash_password)
     
     db.session.add(new_user)
     db.session.commit()
-
+    
+    flash("welcome on board!!")
     return  redirect(url_for('homepage'))
     
     
@@ -125,28 +132,34 @@ def login():
     if request.method == 'GET':
         return render_template('login.html') 
 
-    data = request.get_json()
+    data = request.form
     if not data or 'email' not in data or 'password' not in data:
-        return  flash('Missing email or password')
+        flash('Missing email or password')
+        return redirect(url_for(login))
 
-
-    email = data['email']
-    password = data['password']
+    email = data.get('email')
+    password = data.get('password')
 
     user = User.query.filter_by(email = email).first()
+    
 
     if not user or not check_password_hash(user.password, password):
         flash("your credential is wrong try again!")
         return redirect(url_for('login'))
     
-    access_token = create_access_token(identity=user.id, expires_delta=datetime.timedelta(minutes=300))
+    login_user(user)
+    flash("welcome back!!")
+    return redirect(url_for("homepage"))
  
-    return  jsonify({'token' : access_token}), 200
-
-
+@app.route("/logout", methods=['GET', 'POST'])
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for("homepage"))
 
 
 @app.route('/search', methods=[ 'GET'])
+@login_required
 def search_page():
     
     data = request.args
@@ -159,15 +172,17 @@ def search_page():
     data = fetch_data(book_name)
     if not data:
          return flash("No books found")
+    
     book_list = extract_book_data(data)
     store_books_in_db(book_list)
     return render_template('search.html', data=book_list)
 
 
 @app.route('/add_book', methods=['GET', 'POST'])
+@login_required
 def add_book():
     
-    user_id = request.args.get('user_id')
+    user_id = current_user.id
     book_id = request.args.get('book_id')
     book_title = request.args.get('title')
     book_authors = request.args.get('authors')
@@ -177,7 +192,8 @@ def add_book():
    
     user_book = UserBook.query.filter_by(user_id=user_id,book_id=book_id).first()
     if user_book:
-        return render_template('index.html')
+        flash('The book already in your booklist')
+        return redirect(url_for('book_list'))
 
     new_user_book = UserBook(
         
@@ -192,16 +208,18 @@ def add_book():
         
     db.session.add(new_user_book)
     db.session.commit()
-
-    books = UserBook.query.filter_by(user_id=user_id)
-    return render_template('book_list.html', books=books)
+    
+    flash('you added the book successfuly')
+    return redirect(url_for('homepage'))
 
 @app.route('/book_list')
+@login_required
 def book_list():
     try:
-
-        return render_template('book_list.html')
-
+        user_id = current_user.id
+        books = UserBook.query.filter_by(user_id=user_id)
+        return render_template('book_list.html', books=books)
+    
     except:
         return redirect(url_for('homepage'))
 
@@ -218,8 +236,37 @@ def delete():
         db.session.commit()
     
     return redirect(url_for('homepage'))
+
+
+@app.route('/add_reading_list', methods=['GET', 'POST'])
+def reading_list():
+    id = request.args.get('book_id') 
+    title = request.args.get('book_title')
     
+    book ={
+        'id' : id,
+        'title' : title  
+    }  
+    
+    
+    with open('reading_list.json', 'r+') as read_list:
+        reading_list = json.load(read_list)
+        
+        for existing_book in reading_list.get("reading", []):
+            if existing_book['id'] == id:
+                flash('This book already in your existing books')
+                return redirect(url_for('book_list'))
+        
+        reading_list["reading"].append(book)
+        read_list.seek(0)
+        json.dump(reading_list, read_list, indent = 4)
 
+    flash('added successfully to the reading list')
+    return redirect(url_for('homepage'))
 
+# @app.route('/reading_list', methods=['GET', 'POST'])
+# def reading_list():
+    
+    
 if __name__ == '__main__':
     app.run()

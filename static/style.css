@@ -78,3 +78,11 @@
 
 .table_container td:first-child { color: #FB667A; }
 
+
+.card {
+  background: #e7e7e7;
+  border: 1px solid #ac6305;
+  color: rgba(0, 0, 0, 0.8);
+  margin-bottom: 2rem;
+}
+

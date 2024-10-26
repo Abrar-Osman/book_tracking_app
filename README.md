@@ -9,7 +9,7 @@ we haven't seen before?
   - connecting to the public api.
   - using jason to read and write.
   - using the database.
-  - authentication with jwt, http request and async and wait.
+  - http request and async and wait.
   - using boostrap.
 ## Prerequisites 
 Did you add any additional modules that someone needs to 
