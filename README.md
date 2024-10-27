@@ -64,12 +64,12 @@ feature.
 - [x] It contains conditional statements. Please provide below 
 the file name and the line number(s) of at least one example of a conditional statement in your code. 
   - File name: login.js
-  - Line number(s):24
+  - Line number(s):21
 - [x] It contains loops. Please provide below the file name 
 and the line number(s) of at least 
   one example of a loop in your code. 
   - File name: book_list.html
-  - Line number(s):  52
+  - Line number(s):  16
 - [x] It lets the user enter a value in a text box at some 
 point. This value is received and processed by your back end 
 Python code. 
