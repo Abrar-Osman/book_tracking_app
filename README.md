@@ -11,19 +11,29 @@ we haven't seen before?
   - using the database.
   - http request and async and wait.
   - using boostrap.
+
 ## Prerequisites 
 Did you add any additional modules that someone needs to 
 install (for instance anything in Python that you `pip 
 install-ed`)? 
 - I wrote it in the requirements file in my code but to elaborate:
 Flask>=2.3,<3.0
-Flask-JWT-Extended>=4.4,<5.0
 Flask-SQLAlchemy>=3.0,<4.0
 Werkzeug>=2.3,<3.0
 requests
 Flask-Migrate 
 python-dotenv
- 
+Flask-LoginManager
+flask-login
+
+## How to Run The App
+-  create or download a virtual enviroment in python using the command python -m venv env
+- run the virtual enviroment with this command :
+      on windows : .\env\Scripts\activate
+      on macos/linux : source env/bin/activate
+- download the requirements file with this command pip install -r requirements.txt
+- eun the flask app with this command : python -m flask --app app.py run
+
 ## Project Checklist 
 - [x] It is available on GitHub. 
 - [x] It uses the Flask web framework. 

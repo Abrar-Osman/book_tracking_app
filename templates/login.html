@@ -10,6 +10,16 @@
             <script src="{{ url_for('static', filename='js/login.js') }}"></script>
         </head>
         <body>
+          {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                      {% for category, message in messages %}
+                    <div class="alert  alert-{{ category }} alert-dismissible fade show" role="alert">
+                      <strong>{{ message }}</strong>
+                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                      {% endfor %}
+                    {% endif %}
+                  {% endwith %} 
             <section class="vh-100" >
                 <div class="container py-5 h-100" >
                   <div class="row d-flex justify-content-center align-items-center h-100">
@@ -23,7 +33,7 @@
                           <div class="col-md-6 col-lg-7 d-flex align-items-center" >
                             <div class="card-body p-4 p-lg-5 text-light" >
               
-                              <form class="was-validated" action="/" method="POST">
+                              <form class="was-validated" action="/login" method="POST">
               
                                 <div class="d-flex align-items-center mb-3 pb-1">
                                   <a href="/" class="text-decoration-none"></a><span class="h1 fw-bold mb-0 text-warning">BOOK TRACKER</span></a>

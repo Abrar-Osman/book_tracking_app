@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block content %}  
+          {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert  alert-{{ category }} alert-dismissible fade show" role="alert">
+              <strong>{{ message }}</strong>
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+          {% endif %}
+          {% endwith %}            
+    <div class="container py-5 h-100" >
+    <div class="card border-warning mb-3 bg-light" >
+        <div class="card-body text-success">
+            <form class="was-validated" action="/profile" method="POST">
+                <div class="d-flex align-items-center mb-3 pb-1">
+                    <a href="/" class="text-decoration-none"></a><span class="h1 fw-bold mb-0 text-warning">BOOK TRACKER</span></a>
+                  </div>
+                <h5 class="fw-normal mb-3 pb-3 text-dark" style="letter-spacing: 1px;" id="user">Update Your Profile</h5>
+
+                <div data-mdb-input-init class="form-outline mb-4">
+                    <label for="email" class="form-label text-dark">Email:</label>
+                    <input type="email" class="form-control" id="email" value="{{current_user.email}}" name="email" required>
+                </div>
+
+                <div data-mdb-input-init class="form-outline mb-4">
+                  <label for="username" class="form-label text-dark">Username:</label>
+                  <input type="text" class="form-control" id="username" value="{{current_user.username}}" name="username" required>
+              </div>
+
+                <div class="pt-1 mb-4">
+                    <button type="submit" class="btn btn-warning btn-lg p-2 ">Update</button>
+                </div>
+              </form>
+              <script>
+                username = localStorage.getItem('username');
+                document.getElementById('user').innerHTML = 'Update Your Profile ' + username
+              </script>
+
+        </div>
+      </div>
+      </div>
+    </section>
+    {% endblock %}

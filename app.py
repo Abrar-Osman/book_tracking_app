@@ -91,8 +91,13 @@ def store_books_in_db(books_list):
 
 
 @app.route('/home', methods=['POST', 'GET'])
+@login_required
 def homepage():   
     return render_template('index.html')
+
+@app.route('/', methods=['GET', 'POST'])
+def welcome():
+    return render_template('welcome.html')
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -109,11 +114,11 @@ def register():
     username = data.get('username')
     
     if not email or not username or not password:
-         flash("email or username and password are required!!")
+         flash("email or username and password are required!!", "error")
          return redirect (url_for('register'))
     
     if User.query.filter_by(email=email).first() or User.query.filter_by(username = username).first():
-        flash('User already exists')
+        flash('User already exists', "error")
         return redirect (url_for('register'))
     
 
@@ -123,18 +128,18 @@ def register():
     db.session.add(new_user)
     db.session.commit()
     
-    flash("welcome on board!!")
-    return  redirect(url_for('homepage'))
+    flash("welcome on board!!", "success")
+    return  redirect(url_for('login'))
     
     
-@app.route('/', methods=['POST', 'GET'])
+@app.route('/login', methods=['POST', 'GET'])
 def login():
     if request.method == 'GET':
         return render_template('login.html') 
 
     data = request.form
     if not data or 'email' not in data or 'password' not in data:
-        flash('Missing email or password')
+        flash('Missing email or password', "error")
         return redirect(url_for(login))
 
     email = data.get('email')
@@ -144,18 +149,46 @@ def login():
     
 
     if not user or not check_password_hash(user.password, password):
-        flash("your credential is wrong try again!")
+        flash("your credential is wrong try again!", "error")
         return redirect(url_for('login'))
     
     login_user(user)
-    flash("welcome back!!")
+    flash("welcome back!!", "success")
     return redirect(url_for("homepage"))
- 
+
+@app.route("/profile", methods=['GET', 'POST'])
+@login_required
+def profile():
+    if request.method == 'POST':
+        new_username = request.form.get('username')
+        new_email = request.form.get('email')
+        
+        
+        if not new_username or not new_email:
+            flash("All fields are required.", "error")
+            return redirect(url_for('update_profile'))
+        
+        if User.query.filter_by(email=new_email).first() or User.query.filter_by(username = new_username).first():
+            flash('User already exists', "error")
+            return redirect (url_for('profile'))
+        
+        current_user.username = new_username
+        current_user.email = new_email
+        try:
+            db.session.commit()
+            flash("Profile updated successfully!", "success")
+        except Exception as e:
+            db.session.rollback()
+            flash("An error occurred while updating your profile.", "error")
+            
+        return redirect(url_for('homepage'))
+    return render_template('profile.html')
+
 @app.route("/logout", methods=['GET', 'POST'])
 @login_required
 def logout():
     logout_user()
-    return redirect(url_for("homepage"))
+    return redirect(url_for("login"))
 
 
 @app.route('/search', methods=[ 'GET'])
@@ -166,12 +199,13 @@ def search_page():
     book_name = data.get('q')
     
     if not book_name:
-        flash("Invalid: the search word is required.")
+        flash("Invalid: the search word is required.", "error")
         return redirect(url_for('homepage'))
   
     data = fetch_data(book_name)
     if not data:
-         return flash("No books found")
+        flash("No books found", "error")
+        return redirect(url_for('homepage')) 
     
     book_list = extract_book_data(data)
     store_books_in_db(book_list)
@@ -192,7 +226,7 @@ def add_book():
    
     user_book = UserBook.query.filter_by(user_id=user_id,book_id=book_id).first()
     if user_book:
-        flash('The book already in your booklist')
+        flash('The book already in your booklist', "error")
         return redirect(url_for('book_list'))
 
     new_user_book = UserBook(
@@ -209,7 +243,7 @@ def add_book():
     db.session.add(new_user_book)
     db.session.commit()
     
-    flash('you added the book successfuly')
+    flash('you added the book successfuly',  "success")
     return redirect(url_for('homepage'))
 
 @app.route('/book_list')
@@ -225,6 +259,7 @@ def book_list():
 
 
 @app.route('/delete', methods=['POST', 'GET'])
+@login_required
 def delete():
     id = request.args.get('book_id')
     user_book = UserBook.query.filter_by(id = id).first()
@@ -238,8 +273,9 @@ def delete():
     return redirect(url_for('homepage'))
 
 
-@app.route('/add_reading_list', methods=['GET', 'POST'])
-def reading_list():
+@app.route('/add_user_picks', methods=['GET', 'POST'])
+@login_required
+def user_picks():
     id = request.args.get('book_id') 
     title = request.args.get('book_title')
     
@@ -249,24 +285,27 @@ def reading_list():
     }  
     
     
-    with open('reading_list.json', 'r+') as read_list:
+    with open('user_picks.json', 'r+') as read_list:
         reading_list = json.load(read_list)
         
         for existing_book in reading_list.get("reading", []):
             if existing_book['id'] == id:
-                flash('This book already in your existing books')
+                flash('This book already in your reading books list', "error")
                 return redirect(url_for('book_list'))
         
         reading_list["reading"].append(book)
         read_list.seek(0)
         json.dump(reading_list, read_list, indent = 4)
 
-    flash('added successfully to the reading list')
+    flash('added successfully to the reading list',  "success")
     return redirect(url_for('homepage'))
 
-# @app.route('/reading_list', methods=['GET', 'POST'])
-# def reading_list():
-    
+@app.route('/user_picks')
+@login_required
+def user_picks_display():
+  with open('user_picks.json', 'r') as data:
+      book = json.load(data)
+      return render_template('user_picks.html', data=book)  
     
 if __name__ == '__main__':
     app.run()
