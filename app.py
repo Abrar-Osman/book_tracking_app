@@ -290,7 +290,7 @@ def user_picks():
         
         for existing_book in reading_list.get("reading", []):
             if existing_book['id'] == id:
-                flash('This book already in your reading books list', "error")
+                flash('Someone agree with you!, This book already in!!!', "error")
                 return redirect(url_for('book_list'))
         
         reading_list["reading"].append(book)
