@@ -297,7 +297,7 @@ def user_picks():
         read_list.seek(0)
         json.dump(reading_list, read_list, indent = 4)
 
-    flash('added successfully to the reading list',  "success")
+    flash('added successfully to the user picks list',  "success")
     return redirect(url_for('homepage'))
 
 @app.route('/user_picks')
