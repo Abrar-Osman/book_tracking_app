@@ -35,7 +35,11 @@
               </form>
               <script>
                 username = localStorage.getItem('username');
-                document.getElementById('user').innerHTML = 'Update Your Profile ' + username
+                document.getElementById('user').innerHTML = 'Update Your Profile ' + username;
+
+                if (username == null){
+                   document.getElementById('user').innerHTML = 'Update Your Profile, Fellow ';
+                }
               </script>
 
         </div>
